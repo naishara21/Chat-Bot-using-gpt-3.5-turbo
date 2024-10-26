@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request
 import openai
-
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
-# Set up OpenAI API credentials
-openai.api_key = 'API Key'
-
+# Load environment variables
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Define the default route to return the index.html file
 @app.route("/")
@@ -16,24 +17,15 @@ def index():
 # Define the /api route to handle POST requests
 @app.route("/api", methods=["POST"])
 def api():
-    # Get the message from the POST request
     message = request.json.get("message")
-    # Send the message to OpenAI's API and receive the response
-    
-    
     completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "user", "content": message}
-    ]
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": message}]
     )
-    if completion.choices[0].message!=None:
+    if completion.choices[0].message:
         return completion.choices[0].message
 
-    else :
-        return 'Failed to Generate response!'
-    
+    return 'Failed to generate response!'
 
-if __name__=='__main__':
+if __name__ == '__main__':
     app.run()
-
